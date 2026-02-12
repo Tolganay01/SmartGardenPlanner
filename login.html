@@ -1,0 +1,71 @@
+<!-- templates/login.html - UPDATED with better validation -->
+{% extends "base.html" %}
+
+{% block title %}Log In - Smart Garden Planner{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Welcome Back</h2>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div style="background: #FFF4F4; color: #E74C3C; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #FFCDD2;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+        <div class="form-group">
+            <label for="username">Your username</label>
+            <input type="text" class="form-control" id="username" name="username" 
+                   placeholder="Enter your username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Your password</label>
+            <input type="password" class="form-control" id="password" name="password" 
+                   placeholder="Enter your password" required>
+            <div style="text-align: right; margin-top: 0.5rem;">
+                <a href="{{ url_for('reset_password_request') }}" style="color: #6A8D53; font-size: 0.9rem;">
+                    Forgot password?
+                </a>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%;">
+            Log In
+        </button>
+    </form>
+    
+    <div style="margin-top: 2rem; text-align: center;">
+        <p>Don't have an account? <a href="{{ url_for('register') }}" style="color: #6A8D53; font-weight: 600;">Sign up here</a></p>
+        <p style="margin-top: 1rem;"><a href="{{ url_for('index') }}" style="color: #888;">← Back to home page</a></p>
+    </div>
+</div>
+
+<style>
+/* Add remember me checkbox styling if you want to add it later */
+.form-group {
+    position: relative;
+}
+
+.form-control:focus {
+    border-color: #6A8D53 !important;
+    box-shadow: 0 0 0 3px rgba(106, 141, 83, 0.1) !important;
+}
+
+/* Animation for error messages */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+div[style*="background: #FFF4F4"] {
+    animation: shake 0.3s ease-in-out;
+}
+</style>
+{% endblock %}

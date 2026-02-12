@@ -1,0 +1,39 @@
+<!-- templates/saved_plans.html - UPDATED -->
+{% extends "base.html" %}
+
+{% block title %}Saved Plans - Smart Garden Planner{% endblock %}
+
+{% block content %}
+<div class="account-content" style="max-width: 800px; margin: 0 auto;">
+    <h2 style="text-align: center;">Your Saved Garden Plans</h2>
+    
+    {% if plans %}
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <a href="{{ url_for('create_plan') }}" class="btn">Create New Plan</a>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+            {% for plan in plans %}
+            <div style="background: rgba(255, 255, 255, 0.9); border: 1px solid #ddd; border-radius: 15px; padding: 1.8rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                <h3 style="color: #6A8D53; margin-bottom: 1rem;">{{ plan.plan_name }}</h3>
+                <p><strong>Location:</strong> {{ plan.location }}</p>
+                <p><strong>Garden Size:</strong> {{ plan.garden_size }} sqm</p>
+                <p><strong>Created:</strong> {{ plan.created_at.strftime('%b %d, %Y') }}</p>
+                
+                <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                    <a href="{{ url_for('view_plan', plan_id=plan.id) }}" class="btn" style="flex: 1;">View Plan</a>
+                    <a href="{{ url_for('delete_plan', plan_id=plan.id) }}" class="btn btn-secondary"
+                       onclick="return confirm('Are you sure?')">Delete</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 4rem; background: rgba(248, 249, 250, 0.9); border-radius: 15px;">
+            <h3 style="color: #666; margin-bottom: 1rem;">No saved plans found</h3>
+            <p style="margin-bottom: 2rem;">Start by creating your first garden plan!</p>
+            <a href="{{ url_for('create_plan') }}" class="btn">Create First Plan</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

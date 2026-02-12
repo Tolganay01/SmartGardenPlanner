@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="account-dashboard" style="max-width: 1000px; margin: 2rem auto; font-family: 'Instrument Sans', sans-serif; color: #333;">
+    
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="font-family: 'Inika', serif; font-size: 3rem; color: #6A8D53; margin-bottom: 0.5rem;">My Garden Hub</h1>
+        <p style="color: #888; font-size: 1.1rem;">Manage your sanctuary and security</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; align-items: start;">
+        
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            <div class="glass-card" style="padding: 2rem; border-radius: 30px; background: #F9FBF7; border: 1px solid #E1E8DC; box-shadow: 0 10px 30px rgba(106, 141, 83, 0.05);">
+                <div style="width: 60px; height: 60px; background: #6A8D53; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; color: white; font-size: 1.5rem; font-weight: bold;">
+                    {{ user.username[0]|upper }}
+                </div>
+                <h3 style="margin: 0; font-size: 1.4rem;">{{ user.username }}</h3>
+                <p style="color: #6A8D53; font-weight: 500; margin-bottom: 1.5rem;">{{ user.email }}</p>
+                
+            
+                
+                <div style="height: 1px; background: #E1E8DC; margin-bottom: 1.5rem;"></div>
+                <p style="font-size: 0.85rem; color: #999; text-transform: uppercase; letter-spacing: 1px;">Member Since</p>
+                <p style="font-weight: 600;">{{ user.created_at.strftime('%B %Y') if user.created_at else "February 2026" }}</p>
+            </div>
+
+            <!-- UPDATED SECURITY SECTION WITH PASSWORD VALIDATION -->
+            <div class="glass-card" style="padding: 2rem; border-radius: 30px; background: white; border: 1px solid #E1E8DC;">
+                <h3 style="font-family: 'Inika', serif; margin-bottom: 1.5rem; font-size: 1.3rem;">🔐 Security</h3>
+                
+                <!-- Password Strength Meter (hidden initially) -->
+                <div id="passwordStrength" style="margin-bottom: 1.5rem; display: none;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span id="strengthText" style="font-weight: 600;">Password strength</span>
+                        <span id="strengthScore" style="font-weight: 600;">0/8</span>
+                    </div>
+                    <div style="height: 6px; background: #F0F0F0; border-radius: 4px; overflow: hidden;">
+                        <div id="strengthBar" style="height: 100%; width: 0%; background: #ddd; transition: all 0.3s;"></div>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ url_for('change_password') }}" id="passwordForm">
+                    <div style="margin-bottom: 1rem;">
+                        <input type="password" name="current_password" id="current_password" placeholder="Current Password" required 
+                               style="width: 100%; padding: 1rem; border-radius: 15px; border: 1.5px solid #F0F0F0; background: #FAFAFA; outline: none; transition: 0.3s;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="password" name="new_password" id="new_password" placeholder="New Password" required 
+                               style="width: 100%; padding: 1rem; border-radius: 15px; border: 1.5px solid #F0F0F0; background: #FAFAFA; outline: none; transition: 0.3s;">
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm New Password" required 
+                               style="width: 100%; padding: 1rem; border-radius: 15px; border: 1.5px solid #F0F0F0; background: #FAFAFA; outline: none; transition: 0.3s;">
+                        <div id="passwordMatch" style="margin-top: 0.5rem; font-size: 0.85rem;"></div>
+                    </div>
+                    
+                    <!-- Password requirements dropdown -->
+                    <details style="margin-bottom: 1.5rem; color: #666; font-size: 0.9rem;">
+                        <summary style="cursor: pointer; color: #6A8D53; font-weight: 600;">📋 Password requirements</summary>
+                        <div style="background: #F9FBF7; padding: 1.2rem; border-radius: 15px; margin-top: 1rem;">
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                <li id="req-length" style="margin-bottom: 0.5rem; color: #888;">
+                                    <span style="display: inline-block; width: 20px;">❌</span> At least 8 characters
+                                </li>
+                                <li id="req-uppercase" style="margin-bottom: 0.5rem; color: #888;">
+                                    <span style="display: inline-block; width: 20px;">❌</span> One uppercase letter
+                                </li>
+                                <li id="req-lowercase" style="margin-bottom: 0.5rem; color: #888;">
+                                    <span style="display: inline-block; width: 20px;">❌</span> One lowercase letter
+                                </li>
+                                <li id="req-number" style="margin-bottom: 0.5rem; color: #888;">
+                                    <span style="display: inline-block; width: 20px;">❌</span> One number
+                                </li>
+                                <li id="req-special" style="margin-bottom: 0.5rem; color: #888;">
+                                    <span style="display: inline-block; width: 20px;">❌</span> One special character (!@#$%^&*)
+                                </li>
+                            </ul>
+                        </div>
+                    </details>
+                    
+                    <button type="submit" class="pill-btn-solid" style="width: 100%;" id="submitBtn">Update Password</button>
+                </form>
+                
+            
+            </div>
+        </div>
+
+        <div class="glass-card" style="padding: 2.5rem; border-radius: 35px; background: white; border: 1px solid #E1E8DC; min-height: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-family: 'Inika', serif; font-size: 1.8rem; color: #6A8D53;">Saved Plans</h2>
+                <a href="{{ url_for('create_plan') }}" class="pill-btn-outline">+ New Plan</a>
+            </div>
+
+            {% if plans %}
+                <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                    {% for plan in plans %}
+                    <div class="plan-row" style="padding: 1.5rem; border-radius: 20px; background: #FDFDFD; border: 1px solid #F0F0F0; display: flex; justify-content: space-between; align-items: center; transition: 0.3s;">
+                        <div>
+                            <span style="font-size: 0.75rem; color: #6A8D53; font-weight: 700; text-transform: uppercase;">{{ plan.garden_type|replace('_', ' ') }}</span>
+                            <h4 style="margin: 5px 0; font-size: 1.2rem;">{{ plan.plan_name }}</h4>
+                            <p style="font-size: 0.9rem; color: #888; margin: 0;">{{ plan.location }} • {{ plan.garden_size }} sqm</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{{ url_for('view_plan', plan_id=plan.id) }}" class="pill-btn-small">View</a>
+                            <a href="{{ url_for('delete_plan', plan_id=plan.id) }}" class="pill-btn-small-del" onclick="return confirm('Archive this plan?')">✕</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; margin-top: 5rem; color: #BBB;">
+                    <p style="font-size: 4rem; margin: 0;">🌱</p>
+                    <p>Your garden is waiting to be planned.</p>
+                    <a href="{{ url_for('create_plan') }}" class="pill-btn-solid" style="margin-top: 1.5rem;">Create Your First Plan</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Password Validation Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newPassword = document.getElementById('new_password');
+    const confirmPassword = document.getElementById('confirm_password');
+    const submitBtn = document.getElementById('submitBtn');
+    const strengthDiv = document.getElementById('passwordStrength');
+    
+    if (newPassword) {
+        newPassword.addEventListener('input', function() {
+            const password = this.value;
+            
+            // Show strength meter when user starts typing
+            if (password.length > 0) {
+                strengthDiv.style.display = 'block';
+            } else {
+                strengthDiv.style.display = 'none';
+            }
+            
+            let score = 0;
+            
+            // Check requirements
+            const hasLength = password.length >= 8;
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasLowercase = /[a-z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            
+            // Update requirement indicators
+            updateRequirement('req-length', hasLength);
+            updateRequirement('req-uppercase', hasUppercase);
+            updateRequirement('req-lowercase', hasLowercase);
+            updateRequirement('req-number', hasNumber);
+            updateRequirement('req-special', hasSpecial);
+            
+            // Calculate score
+            if (hasLength) score += 2;
+            if (hasUppercase) score += 1.5;
+            if (hasLowercase) score += 1.5;
+            if (hasNumber) score += 1.5;
+            if (hasSpecial) score += 1.5;
+            
+            // Update strength bar
+            const percentage = (score / 8) * 100;
+            document.getElementById('strengthBar').style.width = percentage + '%';
+            document.getElementById('strengthScore').textContent = Math.round(score) + '/8';
+            
+            // Set color and text
+            let strengthText = '';
+            let barColor = '';
+            
+            if (score >= 7) {
+                strengthText = 'Strong';
+                barColor = '#6A8D53';
+            } else if (score >= 5) {
+                strengthText = 'Medium';
+                barColor = '#FFA500';
+            } else if (score >= 3) {
+                strengthText = 'Weak';
+                barColor = '#E74C3C';
+            } else {
+                strengthText = 'Very Weak';
+                barColor = '#C0392B';
+            }
+            
+            document.getElementById('strengthText').textContent = 'Password strength: ' + strengthText;
+            document.getElementById('strengthBar').style.background = barColor;
+            
+            // Check password match
+            checkPasswordMatch();
+        });
+    }
+    
+    if (confirmPassword) {
+        confirmPassword.addEventListener('input', checkPasswordMatch);
+    }
+    
+    function updateRequirement(elementId, isValid) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            const icon = element.querySelector('span');
+            
+            if (isValid) {
+                element.style.color = '#6A8D53';
+                icon.innerHTML = '✅';
+                element.style.fontWeight = '500';
+            } else {
+                element.style.color = '#888';
+                icon.innerHTML = '❌';
+                element.style.fontWeight = 'normal';
+            }
+        }
+    }
+    
+    function checkPasswordMatch() {
+        if (!newPassword || !confirmPassword || !submitBtn) return;
+        
+        const password = newPassword.value;
+        const confirm = confirmPassword.value;
+        const matchDiv = document.getElementById('passwordMatch');
+        
+        if (confirm.length > 0) {
+            if (password === confirm) {
+                matchDiv.innerHTML = '✅ Passwords match';
+                matchDiv.style.color = '#6A8D53';
+                
+                // Enable submit button only if all requirements are met
+                const hasLength = password.length >= 8;
+                const hasUppercase = /[A-Z]/.test(password);
+                const hasLowercase = /[a-z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+                
+                submitBtn.disabled = !(hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial);
+                
+                if (submitBtn.disabled) {
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.style.cursor = 'not-allowed';
+                } else {
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+                }
+            } else {
+                matchDiv.innerHTML = '❌ Passwords do not match';
+                matchDiv.style.color = '#E74C3C';
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.cursor = 'not-allowed';
+            }
+        } else {
+            matchDiv.innerHTML = '';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+    }
+    
+    // Initialize - disable submit button by default
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+    }
+});
+</script>
+
+<style>
+    /* CSS for the interactive elements */
+    .pill-btn-solid {
+        background: #6A8D53;
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.3s;
+    }
+    .pill-btn-solid:hover:not(:disabled) { 
+        background: #5a7a46; 
+        transform: translateY(-2px); 
+    }
+    .pill-btn-solid:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .pill-btn-outline {
+        border: 2px solid #6A8D53;
+        color: #6A8D53;
+        padding: 0.6rem 1.2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.3s;
+        display: inline-block;
+    }
+    .pill-btn-outline:hover { 
+        background: #6A8D53; 
+        color: white; 
+    }
+
+    .pill-btn-small {
+        background: #F0F4ED;
+        color: #6A8D53;
+        padding: 0.5rem 1.2rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+    .pill-btn-small:hover { 
+        background: #6A8D53; 
+        color: white; 
+    }
+
+    .pill-btn-small-del {
+        background: #FFF0F0;
+        color: #E74C3C;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .pill-btn-small-del:hover { 
+        background: #E74C3C; 
+        color: white; 
+    }
+
+    .plan-row:hover {
+        border-color: #6A8D53 !important;
+        box-shadow: 0 5px 15px rgba(106, 141, 83, 0.08);
+    }
+    
+    input:focus {
+        border-color: #6A8D53 !important;
+        background: white !important;
+        box-shadow: 0 0 0 3px rgba(106, 141, 83, 0.1) !important;
+    }
+    
+    /* Animation for requirement items */
+    #req-length, #req-uppercase, #req-lowercase, #req-number, #req-special {
+        transition: color 0.3s, font-weight 0.3s;
+    }
+    
+    details summary {
+        user-select: none;
+    }
+    
+    details[open] summary {
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}

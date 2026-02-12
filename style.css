@@ -1,0 +1,236 @@
+/* static/style.css */
+@import url('https://fonts.googleapis.com/css2?family=Inika:wght@400;700&family=Instrument+Sans:wght@400;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Instrument Sans', sans-serif;
+    background-color: #F7F3D5; /* Cream background */
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+
+/* Header & Logo */
+header {
+    width: 100%;
+    background-color: #6A8D53;
+    padding: 1.5rem 0;
+    display: flex;
+    justify-content: center;
+}
+
+.header-content {
+    width: 90%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-family: 'Inika', serif;
+    font-size: 2rem;
+    color: #F7F3D5;
+    text-decoration: none;
+}
+
+/* Navigation Buttons */
+.nav-links a, .btn-nav {
+    border: 2px solid #F7F3D5;
+    color: #F7F3D5;
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px; /* Highly rounded */
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+    margin-left: 10px;
+}
+
+.nav-links a:hover {
+    background-color: #F7F3D5;
+    color: #6A8D53;
+}
+
+/* Main Container */
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 2rem;
+}
+
+/* Minimalist Card Style */
+.form-container, .hero, .plan-result {
+    background: white;
+    padding: 3rem;
+    border-radius: 30px; /* Round corner elements */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+}
+
+h1, h2 {
+    color: #6A8D53;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    line-height: 1.4;
+}
+
+/* Buttons for Answering */
+.btn {
+    background-color: #6A8D53;
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 15px; /* Rounded corners */
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+/* Minimalist Form Controls */
+.form-control {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 1rem;
+    background: #fafafa;
+}
+
+.form-group {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+/* Result Rows */
+.plan-item {
+    background: #F7F3D5;
+    margin: 10px 0;
+    padding: 1.5rem;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Footer (Hidden unnecessary info as requested) */
+footer {
+    display: none;
+}
+/* Additional Styles for Results Page */
+
+/* Container for Charts */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+@media (max-width: 768px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-card {
+    background: #F7F3D5; /* Cream background for the chart box */
+    padding: 1.5rem;
+    border-radius: 25px; /* Rounded rectangles */
+    text-align: center;
+}
+
+.chart-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 15px;
+    mix-blend-mode: multiply; /* Helps chart background blend with cream card */
+}
+
+/* Smart Advice Cards */
+.advice-section {
+    margin-top: 3rem;
+    text-align: left;
+}
+
+.advice-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.advice-card {
+    background: white;
+    border: 2px solid #6A8D53; /* Sage border */
+    padding: 1.5rem;
+    border-radius: 20px;
+}
+
+.advice-card h4 {
+    color: #6A8D53;
+    margin-bottom: 0.5rem;
+    font-family: 'Inika', serif;
+}
+
+.advice-card p {
+    font-size: 1.1rem;
+    margin-bottom: 0;
+    color: #444;
+}
+/* Remove all default blue links globally */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Ensure buttons are consistently rounded and sized */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px; /* Pillow shape for links */
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+/* Specific styling for the item-box to make it pop */
+.item-box {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    border: 1px solid rgba(106, 141, 83, 0.1);
+}
+
+/* Input focus state for better UX */
+input:focus {
+    outline: none;
+    border-color: #6A8D53 !important;
+    box-shadow: 0 0 0 4px rgba(106, 141, 83, 0.1);
+}

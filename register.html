@@ -1,0 +1,226 @@
+<!-- templates/register.html - UPDATED with password strength meter -->
+{% extends "base.html" %}
+
+{% block title %}Create Account - Smart Garden Planner{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Create Account</h2>
+    
+    <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+        <div class="form-group">
+            <label for="username">Create username</label>
+            <input type="text" class="form-control" id="username" name="username" 
+                   placeholder="Choose a username" required minlength="3" maxlength="80">
+            <small id="usernameHelp" style="color: #666;">Username must be at least 3 characters</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" 
+                   placeholder="Enter your email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Create password</label>
+            <input type="password" class="form-control" id="password" name="password" 
+                   placeholder="Create a password" required>
+            
+            <!-- Password Strength Meter -->
+            <div id="passwordStrength" style="margin-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span id="strengthText" style="font-weight: 600;">Password strength</span>
+                    <span id="strengthScore" style="font-weight: 600;">0/8</span>
+                </div>
+                <div style="height: 8px; background: #F0F0F0; border-radius: 4px; overflow: hidden;">
+                    <div id="strengthBar" style="height: 100%; width: 0%; background: #ddd; transition: all 0.3s;"></div>
+                </div>
+            </div>
+            
+            <!-- Password Requirements -->
+            <div style="background: #F9FBF7; padding: 1.2rem; border-radius: 15px; margin-top: 1rem;">
+                <p style="font-weight: 600; margin-bottom: 0.8rem; color: #6A8D53;">Password must contain:</p>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li id="req-length" style="margin-bottom: 0.5rem; color: #888;">
+                        <span style="display: inline-block; width: 20px;">❌</span> At least 8 characters
+                    </li>
+                    <li id="req-uppercase" style="margin-bottom: 0.5rem; color: #888;">
+                        <span style="display: inline-block; width: 20px;">❌</span> One uppercase letter
+                    </li>
+                    <li id="req-lowercase" style="margin-bottom: 0.5rem; color: #888;">
+                        <span style="display: inline-block; width: 20px;">❌</span> One lowercase letter
+                    </li>
+                    <li id="req-number" style="margin-bottom: 0.5rem; color: #888;">
+                        <span style="display: inline-block; width: 20px;">❌</span> One number
+                    </li>
+                    <li id="req-special" style="margin-bottom: 0.5rem; color: #888;">
+                        <span style="display: inline-block; width: 20px;">❌</span> One special character (!@#$%^&*)
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="confirm_password">Confirm password</label>
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                   placeholder="Confirm your password" required>
+            <div id="passwordMatch" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;" id="submitBtn" disabled>
+            Create Account
+        </button>
+    </form>
+    
+    <div class="center-text" style="margin-top: 2rem;">
+        <p>Already have an account? <a href="{{ url_for('login') }}">Log in here</a></p>
+        <p style="margin-top: 1rem;"><a href="{{ url_for('index') }}">← Back to home page</a></p>
+    </div>
+</div>
+
+<script>
+// Password strength checker
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    let score = 0;
+    
+    // Check requirements
+    const hasLength = password.length >= 8;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    // Update requirement indicators
+    updateRequirement('req-length', hasLength);
+    updateRequirement('req-uppercase', hasUppercase);
+    updateRequirement('req-lowercase', hasLowercase);
+    updateRequirement('req-number', hasNumber);
+    updateRequirement('req-special', hasSpecial);
+    
+    // Calculate score
+    if (hasLength) score += 2;
+    if (hasUppercase) score += 1.5;
+    if (hasLowercase) score += 1.5;
+    if (hasNumber) score += 1.5;
+    if (hasSpecial) score += 1.5;
+    
+    // Update strength bar
+    const percentage = (score / 8) * 100;
+    document.getElementById('strengthBar').style.width = percentage + '%';
+    document.getElementById('strengthScore').textContent = Math.round(score) + '/8';
+    
+    // Set color and text
+    let strengthText = '';
+    let barColor = '';
+    
+    if (score >= 7) {
+        strengthText = 'Strong';
+        barColor = '#6A8D53';
+    } else if (score >= 5) {
+        strengthText = 'Medium';
+        barColor = '#FFA500';
+    } else if (score >= 3) {
+        strengthText = 'Weak';
+        barColor = '#E74C3C';
+    } else {
+        strengthText = 'Very Weak';
+        barColor = '#C0392B';
+    }
+    
+    document.getElementById('strengthText').textContent = 'Password strength: ' + strengthText;
+    document.getElementById('strengthBar').style.background = barColor;
+    
+    // Check password match and enable/disable submit button
+    checkPasswordMatch();
+});
+
+function updateRequirement(elementId, isValid) {
+    const element = document.getElementById(elementId);
+    const icon = element.querySelector('span');
+    
+    if (isValid) {
+        element.style.color = '#6A8D53';
+        icon.innerHTML = '✅';
+        element.style.fontWeight = '500';
+    } else {
+        element.style.color = '#888';
+        icon.innerHTML = '❌';
+        element.style.fontWeight = 'normal';
+    }
+}
+
+function checkPasswordMatch() {
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm_password').value;
+    const matchDiv = document.getElementById('passwordMatch');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (confirm.length > 0) {
+        if (password === confirm) {
+            matchDiv.innerHTML = '✅ Passwords match';
+            matchDiv.style.color = '#6A8D53';
+            
+            // Enable submit button only if all requirements are met
+            const hasLength = password.length >= 8;
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasLowercase = /[a-z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            
+            submitBtn.disabled = !(hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial);
+        } else {
+            matchDiv.innerHTML = '❌ Passwords do not match';
+            matchDiv.style.color = '#E74C3C';
+            submitBtn.disabled = true;
+        }
+    } else {
+        matchDiv.innerHTML = '';
+        submitBtn.disabled = true;
+    }
+}
+
+document.getElementById('confirm_password').addEventListener('input', checkPasswordMatch);
+document.getElementById('username').addEventListener('input', function() {
+    const username = this.value;
+    const helpText = document.getElementById('usernameHelp');
+    
+    if (username.length < 3) {
+        this.style.borderColor = '#E74C3C';
+        helpText.style.color = '#E74C3C';
+        helpText.innerHTML = '❌ Username must be at least 3 characters';
+    } else {
+        this.style.borderColor = '#6A8D53';
+        helpText.style.color = '#6A8D53';
+        helpText.innerHTML = '✅ Username available (minimum 3 characters)';
+    }
+});
+</script>
+
+<style>
+/* Add some animations */
+.form-control:focus {
+    border-color: #6A8D53 !important;
+    box-shadow: 0 0 0 3px rgba(106, 141, 83, 0.1) !important;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+    transform: none;
+    opacity: 0.5;
+}
+
+/* Requirement list animations */
+#req-length, #req-uppercase, #req-lowercase, #req-number, #req-special {
+    transition: color 0.3s, font-weight 0.3s;
+}
+
+#req-length span, #req-uppercase span, #req-lowercase span, #req-number span, #req-special span {
+    transition: transform 0.3s;
+}
+</style>
+{% endblock %}

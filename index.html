@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <h1>Welcome to <br>Smart Garden Planner</h1>
+    <p>Transform your gardening experience today. <br>Simple, efficient, and tailored to your soil.</p>
+    
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('create_plan') }}" class="btn">Start Planning</a>
+    {% else %}
+        <a href="{{ url_for('register') }}" class="btn">Get Started</a>
+    {% endif %}
+</div>
+{% endblock %}

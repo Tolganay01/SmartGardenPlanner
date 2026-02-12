@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="account-dashboard" style="max-width: 1000px; margin: 2rem auto; font-family: 'Instrument Sans', sans-serif;">
+    
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="font-family: 'Inika', serif; font-size: 3rem; color: #6A8D53; margin-bottom: 0.5rem;">Your Garden Plan</h1>
+        <p style="color: #888; font-size: 1.1rem;">Custom strategy for <strong>{{ garden_data.location }}</strong></p>
+        
+        {% if ai_plan.is_fallback %}
+        <div style="background: #FFF4F4; color: #D32F2F; padding: 1rem; border-radius: 15px; margin-top: 1rem; border: 1px solid #FFCDD2;">
+            <strong>Note:</strong> We are currently experiencing high demand. Some AI details are using a simplified layout.
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="glass-card" style="padding: 3rem; border-radius: 40px; background: white; border: 1px solid #E1E8DC; box-shadow: 0 15px 35px rgba(0,0,0,0.03);">
+        
+        <div style="margin-bottom: 3rem;">
+            <h2 style="font-family: 'Inika', serif; color: #6A8D53; border-bottom: 2px solid #F7F3D5; padding-bottom: 10px; margin-bottom: 1.5rem;">Optimized Crop Layout</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;">
+                {# Using layout_source to ensure we never get the "Unavailable" message #}
+                {% set layout_source = ai_plan.optimized_layout.crop_distribution or ai_plan.estimated_yield or {} %}
+                
+                {% if layout_source %}
+                    {% for crop, val in layout_source.items() %}
+                    <div class="item-box" style="background: #F9FBF7; margin: 0; border: 1px solid #E1E8DC; border-radius: 20px; padding: 1.5rem;">
+                        <span style="color: #6A8D53; font-weight: bold; font-size: 1.1rem; text-transform: capitalize;">{{ crop }}</span><br>
+                        <span style="font-size: 1.8rem; font-weight: 700; color: #333;">
+                            {# Force percentage logic #}
+                            {% if '%' in val|string %}
+                                {{ val }}
+                            {% else %}
+                                {{ (100 / (layout_source|length))|round(1) }}%
+                            {% endif %}
+                        </span>
+                        <p style="font-size: 0.85rem; color: #888; margin-top: 5px;">
+                            {{ ai_plan.optimized_layout.planting_spacing if loop.first else "Optimal spacing applied" }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #888; padding: 1rem;">Layout details processing...</p>
+                {% endif %}
+            </div>
+
+            <div class="item-box" style="margin-top: 1.2rem; background: #FDFDFD; border-left: 4px solid #6A8D53; border-radius: 10px;">
+                <p><strong>Rotation Strategy:</strong> {{ ai_plan.optimized_layout.crop_rotation|default("Standard rotation recommended.") }}</p>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 3rem;">
+            <h2 style="font-family: 'Inika', serif; color: #6A8D53; border-bottom: 2px solid #F7F3D5; padding-bottom: 10px; margin-bottom: 1.5rem;">Estimated Yield</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;">
+                {% if ai_plan.estimated_yield %}
+                    {% for crop, amount in ai_plan.estimated_yield.items() %}
+                    <div class="item-box" style="background: #ffffff; margin: 0; border: 1px solid #E1E8DC; border-radius: 20px; padding: 1.5rem; text-align: center;">
+                        <span style="color: #888; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">{{ crop }}</span><br>
+                        <span style="font-size: 1.8rem; font-weight: 700; color: #333;">
+                            {# Hardcoded kg for consistency #}
+                            {{ amount }} <span style="font-size: 1.1rem; color: #6A8D53; font-weight: 600;">kg</span>
+                        </span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #888; padding-left: 1rem;">Yield data processing...</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-bottom: 3rem;">
+            <h2 style="font-family: 'Inika', serif; color: #6A8D53; border-bottom: 2px solid #F7F3D5; padding-bottom: 10px; margin-bottom: 1.5rem;">Planting & Harvesting Periods</h2>
+            <div class="item-box" style="background: #FDFDFD; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                {% if ai_plan.planting_periods %}
+                    {% for crop, period in ai_plan.planting_periods.items() %}
+                    <p style="margin-bottom: 5px; border-bottom: 1px solid #F0F0F0; padding-bottom: 5px;">
+                        <strong style="color: #6A8D53;">{{ crop }}:</strong> {{ period }}
+                    </p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-bottom: 3rem;">
+            <h2 style="font-family: 'Inika', serif; color: #6A8D53; border-bottom: 2px solid #F7F3D5; padding-bottom: 10px; margin-bottom: 1.5rem;">Diagrams</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div style="text-align: center;">
+                    <p style="color: #888; margin-bottom: 10px; font-weight: 600; font-size: 0.9rem;">Garden Area Distribution</p>
+                    <div style="background: #F9FBF7; padding: 1.5rem; border-radius: 30px; border: 1px solid #E1E8DC;">
+                        {% if ai_plan.visualizations and ai_plan.visualizations.pie_chart %}
+                            <img src="data:image/png;base64,{{ ai_plan.visualizations.pie_chart }}" style="max-width: 100%; mix-blend-mode: multiply;">
+                        {% else %}
+                            <p style="color:#bbb; padding: 2rem;">Chart unavailable</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <p style="color: #888; margin-bottom: 10px; font-weight: 600; font-size: 0.9rem;">Estimated Yield per Crop</p>
+                    <div style="background: #F9FBF7; padding: 1.5rem; border-radius: 30px; border: 1px solid #E1E8DC;">
+                        {% if ai_plan.visualizations and ai_plan.visualizations.bar_chart %}
+                            <img src="data:image/png;base64,{{ ai_plan.visualizations.bar_chart }}" style="max-width: 100%; mix-blend-mode: multiply;">
+                        {% else %}
+                            <p style="color:#bbb; padding: 2rem;">Chart unavailable</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 4rem;">
+            <h2 style="font-family: 'Inika', serif; color: #6A8D53; border-bottom: 2px solid #F7F3D5; padding-bottom: 10px; margin-bottom: 1.5rem;">Smart Advice</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;">
+                <div class="item-box" style="border-top: 4px solid #6A8D53; background: white;">
+                    <h4 style="color: #6A8D53; margin-bottom: 8px; font-family: 'Inika';">Soil Management</h4>
+                    <p style="font-size: 0.95rem; line-height: 1.5;">
+                        {{ ai_plan.smart_advice.soil_improvement or ai_plan.smart_advice.soil_management or "Standard composting recommended." }}
+                    </p>
+                </div>
+                <div class="item-box" style="border-top: 4px solid #6A8D53; background: white;">
+                    <h4 style="color: #6A8D53; margin-bottom: 8px; font-family: 'Inika';">Watering</h4>
+                    <p style="font-size: 0.95rem; line-height: 1.5;">
+                        {{ ai_plan.smart_advice.watering_recommendations or ai_plan.smart_advice.irrigation or "Water early morning for best results." }}
+                    </p>
+                </div>
+                <div class="item-box" style="border-top: 4px solid #6A8D53; background: white;">
+                    <h4 style="color: #6A8D53; margin-bottom: 8px; font-family: 'Inika';">Local Risks</h4>
+                    <p style="font-size: 0.95rem; line-height: 1.5;">
+                        {{ ai_plan.smart_advice.local_risks or "Monitor for local seasonal changes." }}
+                    </p>
+                </div>
+                {% if garden_data.pest_prevention or ai_plan.smart_advice.pest_prevention %}
+                <div class="item-box" style="border-top: 4px solid #6A8D53; background: white;">
+                    <h4 style="color: #6A8D53; margin-bottom: 8px; font-family: 'Inika';">Pest Prevention</h4>
+                    <p style="font-size: 0.95rem; line-height: 1.5;">
+                        {{ ai_plan.smart_advice.pest_prevention or "Encourage beneficial insects." }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; border-top: 1px solid #EEE; padding-top: 3rem; flex-wrap: wrap;">
+            <a href="{{ url_for('account') }}" class="pill-btn-solid">Save Plan</a>
+            <a href="{{ url_for('create_plan') }}" class="pill-btn-outline">Create New Plan</a>
+            <button onclick="window.print()" class="pill-btn-print">Print PDF</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pill-btn-solid { background: #6A8D53; color: white; padding: 1rem 2.5rem; border-radius: 50px; border: none; font-weight: 600; text-decoration: none; transition: 0.3s ease; cursor: pointer; display: inline-block; }
+    .pill-btn-solid:hover { background: #5a7a46; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(106, 141, 83, 0.2); }
+    .pill-btn-outline { border: 2px solid #6A8D53; color: #6A8D53; padding: 0.9rem 2.5rem; border-radius: 50px; font-weight: 600; text-decoration: none; transition: 0.3s ease; display: inline-block; }
+    .pill-btn-outline:hover { background: #6A8D53; color: white; transform: translateY(-2px); }
+    .pill-btn-print { background: #333; color: white; padding: 1rem 2.5rem; border-radius: 50px; border: none; font-weight: 600; transition: 0.3s ease; cursor: pointer; }
+    .pill-btn-print:hover { background: #000; transform: translateY(-2px); }
+    .item-box { background: #F7F3D5; padding: 1.5rem; border-radius: 25px; border: 1px solid rgba(106, 141, 83, 0.1); }
+    @media print { .pill-btn-solid, .pill-btn-outline, .pill-btn-print { display: none !important; } .glass-card { border: none !important; box-shadow: none !important; } }
+</style>
+{% endblock %}

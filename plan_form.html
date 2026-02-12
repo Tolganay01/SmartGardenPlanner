@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div class="loader"></div>
+    <h2 style="font-family: 'Inika', serif; color: #6A8D53; margin-top: 20px;">Analyzing Local Climate...</h2>
+    <p style="color: #888;">Consulting global soil and weather data. This may take up to a minute.</p>
+</div>
+
+<div class="account-dashboard" style="max-width: 800px; margin: 2rem auto; font-family: 'Instrument Sans', sans-serif;">
+    
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="font-family: 'Inika', serif; font-size: 3rem; color: #6A8D53; margin-bottom: 0.5rem;">Create Your Garden Plan</h1>
+        <p style="color: #888; font-size: 1.1rem;">Answer the mandatory questions below to generate your global AI strategy</p>
+    </div>
+    <!-- 🔴 ADD THIS FLASH MESSAGES SECTION HERE -->
+<div style="margin-bottom: 1.5rem;">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                {% if '❌' in message %}
+                    <div style="padding: 1.2rem; border-radius: 15px; margin-bottom: 1rem; background: #FFF4F4; color: #E74C3C; border: 1px solid #FFCDD2;">
+                        {{ message }}
+                    </div>
+                {% elif '⚠️' in message %}
+                    <div style="padding: 1.2rem; border-radius: 15px; margin-bottom: 1rem; background: #FFF8E7; color: #FF8C00; border: 1px solid #FFE0B2;">
+                        {{ message }}
+                    </div>
+                {% elif '✅' in message %}
+                    <div style="padding: 1.2rem; border-radius: 15px; margin-bottom: 1rem; background: #E8F5E9; color: #6A8D53; border: 1px solid #C8E6C9;">
+                        {{ message }}
+                    </div>
+                {% else %}
+                    <div style="padding: 1.2rem; border-radius: 15px; margin-bottom: 1rem; background: #E3F2FD; color: #1976D2; border: 1px solid #BBDEFB;">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="glass-card" style="padding: 3rem; border-radius: 40px; background: white; border: 1px solid #E1E8DC; box-shadow: 0 15px 35px rgba(0,0,0,0.03);">
+    <form method="POST" action="{{ url_for('create_plan') }}" id="gardenForm">
+    <div class="glass-card" style="padding: 3rem; border-radius: 40px; background: white; border: 1px solid #E1E8DC; box-shadow: 0 15px 35px rgba(0,0,0,0.03);">
+        <form method="POST" action="{{ url_for('create_plan') }}" id="gardenForm">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="input-group">
+                    <label>1. Location (City, Country)</label>
+                    <input type="text" name="location" placeholder="e.g. Shymkent, Kazakhstan" required class="custom-input">
+                </div>
+                <div class="input-group">
+                    <label>2. Growing Environment</label>
+                    <select name="garden_type" required class="custom-input">
+                        <option value="open_ground">Open ground</option>
+                        <option value="greenhouse">Greenhouse</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="input-group">
+                    <label>3. Total Garden Size (sqm)</label>
+                    <input type="number" id="garden_size" name="garden_size" placeholder="e.g. 60" required class="custom-input">
+                </div>
+                <div class="input-group">
+                    <label>4. Soil Type</label>
+                    <select name="soil_type" required class="custom-input">
+                        <option value="sandy">Sandy</option>
+                        <option value="clay">Clay</option>
+                        <option value="loamy">Loamy</option>
+                        <option value="silty">Silty</option>
+                        <option value="unknown">I don’t know</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="input-group">
+                    <label>5. Sunlight Exposure</label>
+                    <select name="sunlight" required class="custom-input">
+                        <option value="full_sun">Full sun (6+ hours/day)</option>
+                        <option value="partial_shade">Partial shade</option>
+                        <option value="mostly_shade">Mostly shade</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>6. Watering Frequency</label>
+                    <select name="watering_frequency" required class="custom-input">
+                        <option value="daily">Daily</option>
+                        <option value="2_3_times">2–3 times a week</option>
+                        <option value="weekly">Once a week or less</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 2.5rem; margin-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <label style="color: #6A8D53; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; margin-left: 10px;">7. What would you like to grow?</label>
+                    <button type="button" onclick="addCrop()" id="addCropBtn" class="pill-btn-small">+ Add Another Crop</button>
+                </div>
+                <p id="cropLimitMsg" style="color: #E74C3C; font-size: 0.85rem; display: none; margin-bottom: 10px; margin-left: 10px;">Maximum of 20 crops reached.</p>
+
+                <div id="crops-container">
+                    <div class="crop-row item-box" style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 1rem; align-items: center; background: #F9FBF7; margin-bottom: 1rem;">
+                        <input type="text" name="crop_name[]" placeholder="Crop name (e.g. Tomato)" required class="custom-input-inline">
+                        <input type="number" name="crop_area[]" placeholder="Sqm" step="0.1" required class="custom-input-inline">
+                        <div style="width: 35px;"></div> 
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 3rem;">
+                <div class="input-group">
+                    <label>8. Main Goal</label>
+                    <select name="main_goal" required class="custom-input">
+                        <option value="personal">Personal consumption</option>
+                        <option value="storage">Food storage (canning)</option>
+                        <option value="selling">Commercial/Selling</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>9. Pest Prevention Tips?</label>
+                    <select name="pest_prevention" required class="custom-input">
+                        <option value="yes">Yes, include organic tips</option>
+                        <option value="no">No, standard only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="text-align: center; border-top: 1px solid #EEE; padding-top: 2.5rem;">
+                <button type="submit" id="submitBtn" class="pill-btn-solid" style="width: 100%; font-size: 1.2rem;">Generate Global Plan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* ... existing styles ... */
+    .input-group label { display: block; margin-bottom: 8px; margin-left: 10px; font-weight: 600; color: #6A8D53; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+    .custom-input { width: 100%; padding: 1rem; border-radius: 20px; border: 1.5px solid #F0F0F0; background: #FAFAFA; font-family: 'Instrument Sans'; outline: none; transition: 0.3s; }
+    .custom-input:focus { border-color: #6A8D53; background: white; }
+    .custom-input-inline { width: 100%; padding: 0.8rem; border-radius: 15px; border: 1px solid #E1E8DC; background: white; outline: none; }
+    .pill-btn-solid { background: #6A8D53; color: white; padding: 1.2rem 2rem; border-radius: 50px; border: none; font-weight: 600; cursor: pointer; transition: 0.3s; }
+    .pill-btn-solid:hover { background: #5a7a46; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(106, 141, 83, 0.2); }
+    .pill-btn-small { background: #F0F4ED; color: #6A8D53; padding: 0.6rem 1.5rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: 0.3s; }
+    .pill-btn-small:hover { background: #6A8D53; color: white; }
+    .item-box { padding: 1.2rem; border-radius: 25px; border: 1px solid rgba(106, 141, 83, 0.1); }
+
+    /* Loader Animation */
+    .loader {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #6A8D53;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+
+<script>
+    // Submit handling with Loading State
+    document.getElementById('gardenForm').onsubmit = function() {
+        // Show loading overlay
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        // Disable submit button to prevent double-click (429 errors)
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').style.opacity = '0.5';
+    };
+
+    let cropCount = 1;
+    const maxCrops = 20;
+
+    function addCrop() {
+        if (cropCount >= maxCrops) {
+            document.getElementById('cropLimitMsg').style.display = 'block';
+            return;
+        }
+
+        const container = document.getElementById('crops-container');
+        const newCrop = document.createElement('div');
+        newCrop.className = 'crop-row item-box';
+        newCrop.style.cssText = 'display: grid; grid-template-columns: 2fr 1fr auto; gap: 1rem; align-items: center; background: #F9FBF7; margin-bottom: 1rem;';
+        
+        newCrop.innerHTML = `
+            <input type="text" name="crop_name[]" placeholder="Crop name" required class="custom-input-inline">
+            <input type="number" name="crop_area[]" placeholder="Sqm" step="0.1" required class="custom-input-inline">
+            <button type="button" onclick="removeCrop(this)" style="background: #FFF0F0; color: #E74C3C; border: none; width: 35px; height: 35px; border-radius: 50%; font-weight: bold; cursor: pointer;">✕</button>
+        `;
+        container.appendChild(newCrop);
+        cropCount++;
+        
+        if (cropCount >= maxCrops) {
+            document.getElementById('addCropBtn').style.opacity = '0.5';
+            document.getElementById('addCropBtn').disabled = true;
+        }
+    }
+
+    function removeCrop(button) {
+        button.parentElement.remove();
+        cropCount--;
+        document.getElementById('cropLimitMsg').style.display = 'none';
+        document.getElementById('addCropBtn').style.opacity = '1';
+        document.getElementById('addCropBtn').disabled = false;
+    }
+</script>
+{% endblock %}
