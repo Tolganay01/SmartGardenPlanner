@@ -79,5 +79,5 @@ Estimates yield
 Generates visual diagrams
 
 Authors:
-Orazaliyeva Tolganay
+Orazaliyeva Tolganay, 
 Meldebekova Sabina
